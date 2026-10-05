@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title>Incident Atlas | Call to Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/cytoscape@3.30.4/dist/cytoscape.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script defer src="model.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="./index.html"><span class="brand-mark"><i data-lucide="workflow"></i></span><span>INCIDENT <strong>ATLAS</strong></span></a>
+    <span class="header-divider"></span><span class="header-subtitle">Call to room</span>
+    <span class="demo-badge"><span></span> FICTIONAL DEMO / NO LIVE DISPATCH</span>
+  </header>
+  <main>
+    <section class="case-header" aria-label="Incident summary">
+      <div><div class="eyebrow">OPERATIONS / INCIDENT 55</div><h1>A call. A location. A response.</h1><p>Building B <span>/</span> Medical assistance <span>/</span> Patient 7</p></div>
+      <div class="scenario-control"><label for="scenario">Scenario</label><select id="scenario"><option value="normal">Standard response</option><option value="correction">Room corrected after dispatch</option><option value="outage">Elevator unavailable</option></select></div>
+    </section>
+    <section class="timeline-bar" aria-label="Walkthrough controls">
+      <nav id="steps" class="steps" aria-label="Incident stages"></nav>
+      <div class="transport">
+        <button id="restart" class="icon-button" title="Restart walkthrough" aria-label="Restart walkthrough"><i data-lucide="rotate-ccw"></i></button>
+        <button id="previous" class="icon-button" title="Previous step" aria-label="Previous step"><i data-lucide="chevron-left"></i></button>
+        <button id="play" class="icon-button play-button" title="Play walkthrough" aria-label="Play walkthrough"><i data-lucide="play"></i></button>
+        <button id="next" class="icon-button" title="Next step" aria-label="Next step"><i data-lucide="chevron-right"></i></button>
+      </div>
+    </section>
+    <div class="workspace">
+      <section class="visual-workspace" aria-label="Incident visualization">
+        <div class="scene-header"><div><span id="stage-status" class="status-badge">Call received</span><span id="clock" class="clock">14:03:00</span></div><div class="view-tabs" role="tablist" aria-label="Visualization"><button role="tab" id="tab-district" data-view="district" aria-selected="true" aria-controls="district-view">District</button><button role="tab" id="tab-floor" data-view="floor" aria-selected="false" aria-controls="floor-view">Floor 2</button><button role="tab" id="tab-graph" data-view="graph" aria-selected="false" aria-controls="graph-view">Graph</button></div></div>
+        <div class="scene">
+          <section id="district-view" class="scene-view" role="tabpanel" aria-labelledby="tab-district"><div class="scene-caption"><strong>Riverside quarter</strong><span>Schematic / fictional geometry</span></div><div id="district-art" class="diagram"></div><div class="map-key"><span><b class="key-dot teal"></b>Response unit</span><span><b class="key-dot amber"></b>Location evidence</span><span><b class="key-line"></b>Assessed route</span></div></section>
+          <section id="floor-view" class="scene-view" role="tabpanel" aria-labelledby="tab-floor" hidden><div class="scene-caption"><strong>Building B / Floor 2</strong><span>Local floor label 2 / not to scale</span></div><div id="floor-art" class="diagram"></div><div id="floor-note" class="floor-note"></div></section>
+          <section id="graph-view" class="scene-view" role="tabpanel" aria-labelledby="tab-graph" hidden><div class="scene-caption"><strong>Incident relationships</strong><span id="graph-source">UI projection / not an RDF database</span></div><div id="graph-canvas" role="img" aria-label="Interactive incident relationship graph"></div><div class="graph-tools"><button id="fit-graph" class="icon-button" title="Fit graph" aria-label="Fit graph"><i data-lucide="maximize"></i></button></div><div id="graph-fallback" hidden>Graph renderer unavailable. The record selector below contains all visible entities.</div><div class="graph-key"><span><b class="key-dot teal"></b>Places / units</span><span><b class="key-dot amber"></b>Evidence</span><span><b class="key-dot red"></b>Incident / operations</span></div></section>
+        </div>
+        <div class="summary-strip"><div><span>DESTINATION</span><strong id="destination">Unresolved</strong></div><div><span>LOCATION EVIDENCE</span><strong id="certainty">Not yet collected</strong></div><div><span>ASSIGNMENT</span><strong id="assignment">Not assigned</strong></div></div>
+        <section class="record-inspector" aria-label="Selected record"><div class="section-heading"><span class="eyebrow">RECORD INSPECTOR</span><select id="record-select" aria-label="Inspect entity"></select></div><div id="record-detail"></div></section>
+        <section class="storage-section" aria-label="Storage architecture"><div class="section-heading"><span class="eyebrow">STORAGE & DELIVERY</span><span class="tiny-label">Simulated state</span></div><div id="storage-flow" class="storage-flow"></div></section>
+        <section class="event-section" aria-label="Incident event history"><div class="section-heading"><span class="eyebrow">EVENT TRAIL</span><span id="event-count" class="tiny-label"></span></div><ol id="events" class="events"></ol></section>
+      </section>
+      <aside class="explanation" aria-label="Step explanation and queries">
+        <div class="explanation-header"><div class="eyebrow"><span id="step-number">01 / 07</span><span>BEHIND THIS STEP</span></div><h2 id="step-title"></h2><p id="step-description"></p><div id="scenario-note" class="scenario-note" hidden></div><div class="engine-row"><i data-lucide="database"></i><span id="engine"></span><span id="operation" class="operation"></span></div></div>
+        <div class="detail-tabs" role="tablist" aria-label="Step details"><button role="tab" id="detail-tab-query" data-detail="query" aria-selected="true" aria-controls="query-panel">Query & result</button><button role="tab" id="detail-tab-data" data-detail="data" aria-selected="false" aria-controls="data-panel">Datasets <span id="dataset-count"></span></button><button role="tab" id="detail-tab-evidence" data-detail="evidence" aria-selected="false" aria-controls="evidence-panel">Evidence</button></div>
+        <section id="query-panel" role="tabpanel" aria-labelledby="detail-tab-query"><div class="query-heading"><div><span id="query-language" class="eyebrow"></span><h3 id="query-title"></h3></div><button id="copy-query" class="icon-button" title="Copy query" aria-label="Copy query"><i data-lucide="copy"></i></button></div><pre class="code-block"><code id="query-code"></code></pre><div class="result-heading"><span class="eyebrow">SIMULATED RESULT</span><span id="row-count"></span></div><div id="query-result" class="result-table"></div><p id="query-note" class="query-note"></p></section>
+        <section id="data-panel" role="tabpanel" aria-labelledby="detail-tab-data" hidden><div id="dataset-list"></div></section>
+        <section id="evidence-panel" role="tabpanel" aria-labelledby="detail-tab-evidence" hidden><div id="evidence-detail"></div></section>
+        <div class="side-footer"><i data-lucide="flask-conical"></i><span>Local fixtures only. Queries are illustrative and are not executed against a database. No patient data or real dispatch system is connected.</span></div>
+      </aside>
+    </div>
+    <footer class="page-footer"><span>INCIDENT ATLAS <span>/</span> Ontology in operation</span><span>Observation &ne; assertion &ne; decision</span></footer>
+    <p id="announcement" class="sr-only" role="status" aria-live="polite"></p>
+  </main>
+</body>
+</html>
